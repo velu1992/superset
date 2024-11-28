@@ -33,6 +33,7 @@ import SankeyChartPlugin from '@superset-ui/legacy-plugin-chart-sankey';
 import TableChartPlugin from '@superset-ui/plugin-chart-table';
 import { WordCloudChartPlugin } from '@superset-ui/plugin-chart-word-cloud';
 import WorldMapChartPlugin from '@superset-ui/legacy-plugin-chart-world-map';
+
 import {
   AreaChartPlugin,
   BarChartPlugin,
@@ -82,6 +83,7 @@ import { PivotTableChartPlugin as PivotTableChartPluginV2 } from '@superset-ui/p
 import { HandlebarsChartPlugin } from '@superset-ui/plugin-chart-handlebars';
 import { FilterPlugins } from 'src/constants';
 import TimeTableChartPlugin from '../TimeTable';
+import { SupersetPluginChartHelloWorld } from 'superset-plugin-chart-hello-world';
 
 export default class MainPreset extends Preset {
   constructor() {
@@ -177,6 +179,7 @@ export default class MainPreset extends Preset {
         new EchartsSunburstChartPlugin().configure({ key: 'sunburst_v2' }),
         new HandlebarsChartPlugin().configure({ key: 'handlebars' }),
         new EchartsBubbleChartPlugin().configure({ key: 'bubble_v2' }),
+        new SupersetPluginChartHelloWorld().configure({ key: 'ext-hello-world' }),
         ...experimentalPlugins,
       ],
     });

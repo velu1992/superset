@@ -84,6 +84,8 @@ import { HandlebarsChartPlugin } from '@superset-ui/plugin-chart-handlebars';
 import { FilterPlugins } from 'src/constants';
 import TimeTableChartPlugin from '../TimeTable';
 import { SupersetPluginChartHelloWorld } from 'superset-plugin-chart-hello-world';
+import { SupersetPluginChartSurfacePlot } from 'superset-plugin-chart-surface-plot';
+import { SupersetPluginChartThreeDimentionalFunctionalPlot } from 'superset-plugin-chart-three-dimentional-functional-plot';
 
 export default class MainPreset extends Preset {
   constructor() {
@@ -180,6 +182,8 @@ export default class MainPreset extends Preset {
         new HandlebarsChartPlugin().configure({ key: 'handlebars' }),
         new EchartsBubbleChartPlugin().configure({ key: 'bubble_v2' }),
         new SupersetPluginChartHelloWorld().configure({ key: 'ext-hello-world' }),
+        new SupersetPluginChartSurfacePlot().configure({ key: 'surface-plot'}),
+        new SupersetPluginChartThreeDimentionalFunctionalPlot().configure({ key: '3d-functional-plot'}),
         ...experimentalPlugins,
       ],
     });

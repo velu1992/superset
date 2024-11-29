@@ -206,6 +206,8 @@
     "scroll-into-view-if-needed": "^3.1.0",
     "simple-zstd": "^1.4.2",
     "superset-plugin-chart-hello-world": "^0.1.0",
+    "superset-plugin-chart-surface-plot": "^0.1.0",
+    "superset-plugin-chart-three-dimentional-functional-plot": "^0.1.0",
     "tinycolor2": "^1.4.2",
     "urijs": "^1.19.8",
     "use-event-callback": "^0.1.0",

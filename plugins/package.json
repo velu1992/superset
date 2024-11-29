@@ -1,7 +1,7 @@
 {
-  "name": "superset-plugin-chart-hello-world",
+  "name": "superset-plugin-chart-three-dimentional-functional-plot",
   "version": "0.1.0",
-  "description": "Superset Plugin Chart Hello World",
+  "description": "Superset Plugin Chart Three Dimentional Functional Plot",
   "sideEffects": false,
   "main": "lib/index.js",
   "module": "esm/index.js",
@@ -26,6 +26,7 @@
   "publishConfig": {
     "access": "public"
   },
+  "dependencies": {},
   "peerDependencies": {
     "@airbnb/config-babel": "^2.0.1",
     "@superset-ui/chart-controls": "*",
@@ -35,7 +36,6 @@
   "devDependencies": {
     "@babel/cli": "^7.16.0",
     "@types/jest": "^26.0.4",
-    "babel-plugin-typescript-to-proptypes": "^2.1.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "rimraf": "^3.0.2",

@@ -50,6 +50,11 @@ const ChartList = lazy(
   () => import(/* webpackChunkName: "ChartList" */ 'src/pages/ChartList'),
 );
 
+const ScplReportViewer = lazy(
+  () =>
+    import(/* webpackChunkName: "ScplReportViewer" */ 'src/pages/ScplReportViewer'),
+);
+
 const TestPage = lazy(
   () =>
     import(/* webpackChunkName: "TestPage" */ 'src/pages/TestPage'),
@@ -62,10 +67,10 @@ const CssTemplateList = lazy(
     ),
 );
 
-// const DashboardList = lazy(
-//   () =>
-//     import(/* webpackChunkName: "DashboardList" */ 'src/pages/DashboardList'),
-// );
+const DashboardList = lazy(
+  () =>
+    import(/* webpackChunkName: "DashboardList" */ 'src/pages/DashboardList'),
+);
 
 const Dashboard = lazy(
   () => import(/* webpackChunkName: "Dashboard" */ 'src/pages/Dashboard'),
@@ -142,7 +147,7 @@ export const routes: Routes = [
   },
   {
     path: '/dashboard/list/',
-    Component: TestPage,
+    Component: DashboardList,
   },
   {
     path: '/superset/dashboard/:idOrSlug/',
@@ -230,6 +235,14 @@ export const routes: Routes = [
     path: '/sqllab/',
     Component: SqlLab,
   },
+  {
+    path: '/testpage',
+    Component: TestPage,
+  },
+  {
+    path: '/reportviewer',
+    Component: ScplReportViewer,
+  }
 ];
 
 if (isFeatureEnabled(FeatureFlag.TaggingSystem)) {

@@ -117,6 +117,9 @@ RUN mkdir -p ${PYTHONPATH} superset/static requirements superset-frontend apache
     && chown -R superset:superset ./* \
     && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
+###### scpl images to be copied into assets ####
+COPY --chown=superset:superset assets_to_be_copied /app/superset/static/assets
+
 COPY --chown=superset:superset pyproject.toml setup.py MANIFEST.in README.md ./
 # setup.py uses the version information in package.json
 COPY --chown=superset:superset superset-frontend/package.json superset-frontend/

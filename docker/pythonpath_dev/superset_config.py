@@ -25,6 +25,14 @@ import os
 
 from celery.schedules import crontab
 from flask_caching.backends.filesystemcache import FileSystemCache
+from flask_appbuilder.menu import Menu
+
+def custom_menu(app):
+    # Get the existing menu from appbuilder
+    menu: Menu = app.appbuilder.menu
+    # Add custom menu items
+    #menu.add_link("My TestPage", href="/testpage")
+    menu.add_link("Report Viewer", href="/reportviewer")
 
 logger = logging.getLogger()
 
@@ -103,7 +111,7 @@ WEBDRIVER_BASEURL = "http://superset:8088/"  # When using docker compose baseurl
 # The base URL for the email report hyperlinks.
 WEBDRIVER_BASEURL_USER_FRIENDLY = WEBDRIVER_BASEURL
 SQLLAB_CTAS_NO_LIMIT = True
-
+FLASK_APP_MUTATOR = custom_menu
 #
 # Optionally import superset_config_docker.py (which will have been included on
 # the PYTHONPATH) in order to allow for local settings to be overridden

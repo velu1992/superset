@@ -63,7 +63,7 @@ from superset.utils.core import is_test, NO_TIME_RANGE, parse_boolean_string
 from superset.utils.encrypt import SQLAlchemyUtilsAdapter
 from superset.utils.log import DBEventLogger
 from superset.utils.logging_configurator import DefaultLoggingConfigurator
-
+from flask_appbuilder.menu import Menu
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
@@ -108,7 +108,20 @@ PACKAGE_JSON_FILE = str(files("superset") / "static/assets/package.json")
 #     "type": "image/png"
 #     "rel": "icon"
 # },
-FAVICONS = [{"href": "/static/assets/images/favicon.png"}]
+# FAVICONS = [{"href": "/static/assets/images/favicon.png"}]
+FAVICONS=[{
+    "href":"/static/assets/scpl_images/favicon-16x16.png",
+    "sizes":"16*16",
+    "type":"images/png",
+    "rel":"icon",
+},
+{
+    "href":"/static/assets/scpl_images/favicon-32x32.png",
+    "sizes":"32*32",
+    "type":"images/png",
+    "rel":"icon",
+}
+]
 
 
 def _try_json_readversion(filepath: str) -> str | None:
@@ -125,6 +138,13 @@ def _try_json_readsha(filepath: str, length: int) -> str | None:
             return json.load(f).get("GIT_SHA")[:length]
     except Exception:  # pylint: disable=broad-except
         return None
+
+def custom_menu(app):
+    # Get the existing menu from appbuilder
+    menu: Menu = app.appbuilder.menu
+    # Add custom menu items
+    #menu.add_link("My TestPage", href="/testpage")
+    menu.add_link("Report Viewer", href="/reportviewer")
 
 
 #
@@ -307,10 +327,12 @@ AUTH_RATE_LIMIT = "5 per second"
 # GLOBALS FOR APP Builder
 # ------------------------------
 # Uncomment to setup Your App name
-APP_NAME = "Superset"
+# APP_NAME = "Superset"
+APP_NAME = "SAMA Reports"
 
 # Specify the App icon
-APP_ICON = "/static/assets/images/superset-logo-horiz.png"
+# APP_ICON = "/static/assets/images/superset-logo-horiz.png"
+APP_ICON = "/static/assets/scpl_images/scpl.png"
 
 # Specify where clicking the logo would take the user'
 # Default value of None will take you to '/superset/welcome'
@@ -319,10 +341,12 @@ APP_ICON = "/static/assets/images/superset-logo-horiz.png"
 LOGO_TARGET_PATH = None
 
 # Specify tooltip that should appear when hovering over the App Icon/Logo
-LOGO_TOOLTIP = ""
+# LOGO_TOOLTIP = ""
+LOGO_TOOLTIP = "Supra Controls Pvt Ltd"
 
 # Specify any text that should appear to the right of the logo
-LOGO_RIGHT_TEXT: Callable[[], str] | str = ""
+# LOGO_RIGHT_TEXT: Callable[[], str] | str = ""
+LOGO_RIGHT_TEXT = "SAMA Web Reports"
 
 # Enables SWAGGER UI for superset openapi spec
 # ex: http://localhost:8080/swagger/v1
@@ -1207,7 +1231,8 @@ CONFIG_PATH_ENV_VAR = "SUPERSET_CONFIG_PATH"
 # a reference to the Flask app. This can be used to alter the Flask app
 # in whatever way.
 # example: FLASK_APP_MUTATOR = lambda x: x.before_request = f
-FLASK_APP_MUTATOR = None
+#FLASK_APP_MUTATOR = None
+FLASK_APP_MUTATOR = custom_menu
 
 # smtp server configuration
 SMTP_HOST = "localhost"

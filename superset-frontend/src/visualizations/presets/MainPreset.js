@@ -86,6 +86,9 @@ import TimeTableChartPlugin from '../TimeTable';
 import { SupersetPluginChartHelloWorld } from 'superset-plugin-chart-hello-world';
 import { SupersetPluginChartSurfacePlot } from 'superset-plugin-chart-surface-plot';
 import { SupersetPluginChartThreeDimentionalFunctionalPlot } from 'superset-plugin-chart-three-dimentional-functional-plot';
+import { SupersetPluginChartContourPlot } from 'superset-plugin-chart-contour-plot';
+import { SupersetPluginChartCandlestickPlot } from 'superset-plugin-chart-candlestick-plot';
+import { SupersetPluginChartViolinPlot } from 'superset-plugin-chart-violin-plot';
 
 export default class MainPreset extends Preset {
   constructor() {
@@ -142,6 +145,7 @@ export default class MainPreset extends Preset {
         new TimeTableChartPlugin().configure({ key: 'time_table' }),
         new WordCloudChartPlugin().configure({ key: 'word_cloud' }),
         new WorldMapChartPlugin().configure({ key: 'world_map' }),
+
         new EchartsAreaChartPlugin().configure({
           key: 'echarts_area',
         }),
@@ -184,6 +188,9 @@ export default class MainPreset extends Preset {
         new SupersetPluginChartHelloWorld().configure({ key: 'ext-hello-world' }),
         new SupersetPluginChartSurfacePlot().configure({ key: 'surface-plot'}),
         new SupersetPluginChartThreeDimentionalFunctionalPlot().configure({ key: '3d-functional-plot'}),
+        new SupersetPluginChartContourPlot().configure({ key: 'contour-plot'}),
+        new SupersetPluginChartCandlestickPlot().configure({ key: 'candlestick-plot'}),
+        new SupersetPluginChartViolinPlot().configure({ key: 'violin-plot'}),
         ...experimentalPlugins,
       ],
     });

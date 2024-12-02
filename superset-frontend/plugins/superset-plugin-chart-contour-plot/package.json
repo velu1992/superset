@@ -27,7 +27,8 @@
     "access": "public"
   },
   "dependencies": {
-    "plotly.js": "^2.33.0"
+    "plotly.js": "^2.35.2",
+    "react-plotly.js": "^2.6.0"
   },
   "peerDependencies": {
     "@airbnb/config-babel": "^2.0.1",

@@ -16,9 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { ChartProps, TimeseriesDataRecord } from '@superset-ui/core';
+// import { ChartProps, TimeseriesDataRecord } from '@superset-ui/core';
 
-export default function transformProps(chartProps: ChartProps) {
+import { SupersetPluginChartThreeDimensionalFunctionalPlotProps } from '../types';
+// export default function transformProps(chartProps: ChartProps) {
   /**
    * This function is called after a successful response has been
    * received from the chart data endpoint, and is used to transform
@@ -48,19 +49,42 @@ export default function transformProps(chartProps: ChartProps) {
    * function during development with hot reloading, changes won't
    * be seen until restarting the development server.
    */
-  const { width, height, formData, queriesData } = chartProps;
-  const { boldText, headerFontSize, headerText } = formData;
-  const data = queriesData[0].data as TimeseriesDataRecord[];
-
-  console.log('formData via TransformProps.ts', formData);
-
-  return {
-    width,
-    height,
-    data,
-    // and now your control data, manipulated as needed, and passed through as props!
-    boldText,
-    headerFontSize,
-    headerText,
-  };
-}
+  export default function transformProps(
+    chartProps: any,
+  ): SupersetPluginChartThreeDimensionalFunctionalPlotProps {
+    const { formData, width, height, queriesData } = chartProps;
+    console.log(formData, 'formData');
+    console.log(chartProps, 'chartProps');
+  
+    // Corrected property names
+    const {
+      headerText,
+      boldText,
+      headerFontSize,
+      xAxisColumn,
+      yAxisColumn,
+      zAxisColumn,
+    } = formData;
+  
+    console.log(
+      headerText,
+      boldText,
+      headerFontSize,
+      xAxisColumn,
+      yAxisColumn,
+      zAxisColumn,
+      '$$$$$$$$$$headerText, boldText, headerFontSize, xAxisColumn, yAxisColumn, zAxisColumn$$$$$$4444444',
+    );
+  
+    return {
+      width,
+      height,
+      data: queriesData[0].data, // Assuming your data comes in this format
+      headerText,
+      boldText,
+      headerFontSize,
+      xAxisColumn,
+      yAxisColumn,
+      zAxisColumn,
+    };
+  }

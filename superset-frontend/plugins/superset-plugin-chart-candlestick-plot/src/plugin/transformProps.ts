@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { ChartProps, TimeseriesDataRecord } from '@superset-ui/core';
+import { ChartProps } from '@superset-ui/core';
 import { SupersetPluginChartCandlestickPlotProps } from '../types';
 export default function transformProps(
   chartProps: ChartProps,

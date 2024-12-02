@@ -18,8 +18,7 @@
  */
 import {
   QueryFormData,
-  supersetTheme,
-  TimeseriesDataRecord,
+  supersetTheme
 } from '@superset-ui/core';
 
 export interface SupersetPluginChartThreeDimentionalFunctionalPlotStylesProps {
@@ -37,8 +36,19 @@ export type SupersetPluginChartThreeDimentionalFunctionalPlotQueryFormData = Que
   SupersetPluginChartThreeDimentionalFunctionalPlotStylesProps &
   SupersetPluginChartThreeDimentionalFunctionalPlotCustomizeProps;
 
-export type SupersetPluginChartThreeDimentionalFunctionalPlotProps = SupersetPluginChartThreeDimentionalFunctionalPlotStylesProps &
-  SupersetPluginChartThreeDimentionalFunctionalPlotCustomizeProps & {
-    data: TimeseriesDataRecord[];
-    // add typing here for the props you pass in from transformProps.ts!
-  };
+// export type SupersetPluginChartThreeDimentionalFunctionalPlotProps = SupersetPluginChartThreeDimentionalFunctionalPlotStylesProps &
+//   SupersetPluginChartThreeDimentionalFunctionalPlotCustomizeProps & {
+//     data: TimeseriesDataRecord[];
+//     // add typing here for the props you pass in from transformProps.ts!
+//   };
+export interface SupersetPluginChartThreeDimensionalFunctionalPlotProps {
+  xAxisColumn: any;
+  yAxisColumn: any;
+  zAxisColumn: (xAxisColumn: number, yAxisColumn: number) => number | string;
+  data: any;
+  height: number;
+  width: number;
+  headerText: string;
+  headerFontSize: 'xxs' | 'xs' | 's' | 'm' | 'l' | 'xl' | 'xxl';
+  boldText: boolean;
+}

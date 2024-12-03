@@ -44,7 +44,8 @@ export type SupersetPluginChartThreeDimentionalFunctionalPlotQueryFormData = Que
 export interface SupersetPluginChartThreeDimensionalFunctionalPlotProps {
   xAxisColumn: any;
   yAxisColumn: any;
-  zAxisColumn: (xAxisColumn: number, yAxisColumn: number) => number | string;
+  // zAxisColumn: any;
+  // zAxisColumn: (xAxisColumn: number, yAxisColumn: number) => number | string | null;
   data: any;
   height: number;
   width: number;

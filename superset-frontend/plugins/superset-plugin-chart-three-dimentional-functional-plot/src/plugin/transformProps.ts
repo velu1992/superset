@@ -63,16 +63,21 @@ import { SupersetPluginChartThreeDimensionalFunctionalPlotProps } from '../types
       headerFontSize,
       xAxisColumn,
       yAxisColumn,
-      zAxisColumn,
+      // zAxisColumn,
     } = formData;
-  
+  // const zAxisColumn = function(xAxisColumn: number,yAxisColumn: number){
+  //   if (Math.abs(xAxisColumn) < 0.1 && Math.abs(yAxisColumn) < 0.1) {
+  //     return '-';
+  //   }
+  //   return Math.sin(xAxisColumn * Math.PI) * Math.sin(yAxisColumn * Math.PI);
+  // }
     console.log(
       headerText,
       boldText,
       headerFontSize,
       xAxisColumn,
       yAxisColumn,
-      zAxisColumn,
+      // zAxisColumn,
       '$$$$$$$$$$headerText, boldText, headerFontSize, xAxisColumn, yAxisColumn, zAxisColumn$$$$$$4444444',
     );
   
@@ -85,6 +90,6 @@ import { SupersetPluginChartThreeDimensionalFunctionalPlotProps } from '../types
       headerFontSize,
       xAxisColumn,
       yAxisColumn,
-      zAxisColumn,
+      // zAxisColumn,
     };
   }

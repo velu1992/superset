@@ -29,7 +29,6 @@ import 'echarts-gl';
 // https://github.com/apache-superset/superset-ui/blob/master/packages/superset-ui-core/src/style/index.ts
 
 const Styles = styled.div<SupersetPluginChartThreeDimentionalFunctionalPlotStylesProps>`
-  background-color: ${({ theme }) => theme.colors.secondary.light2};
   padding: ${({ theme }) => theme.gridUnit * 4}px;
   border-radius: ${({ theme }) => theme.gridUnit * 2}px;
   height: ${({ height }) => height}px;
@@ -43,11 +42,6 @@ const Styles = styled.div<SupersetPluginChartThreeDimentionalFunctionalPlotStyle
       theme.typography.sizes[headerFontSize]}px;
     font-weight: ${({ theme, boldText }) =>
       theme.typography.weights[boldText ? 'bold' : 'normal']};
-  }
-
-  pre {
-    height: ${({ theme, headerFontSize, height }) =>
-      height - theme.gridUnit * 12 - theme.typography.sizes[headerFontSize]}px;
   }
 `;
 
@@ -70,13 +64,10 @@ export default function SupersetPluginChartThreeDimentionalFunctionalPlot(props:
     headerFontSize,
     xAxisColumn,
     yAxisColumn,
-    zAxisColumn,
    } = props;
 
   const rootElem = createRef<HTMLDivElement>();
-
-  // Often, you just want to access the DOM and do whatever you want.
-  // Here, you can do that with createRef, and the useEffect hook.
+// const zAxisColumn;
   useEffect(() => {
     if (!rootElem.current) return;
 
@@ -87,8 +78,9 @@ export default function SupersetPluginChartThreeDimentionalFunctionalPlot(props:
     const formattedData = data.map((row: any) => {
       const x = row[xAxisColumn];
       const y = row[yAxisColumn];
-      const z = zAxisColumn(x, y); // Apply the zAxisColumn function
-      return [x, y, z]; // Return x, y, and z coordinates for the plot
+      const z = Math.pow(x, 2) + Math.pow(y, 2);
+      // const z = zAxisColumn(x, y); // Apply the zAxisColumn function
+      return [x, y,z]; // Return x, y, and z coordinates for the plot
     });
     // const zAxisColumn = function (xAxisColumn: number, yAxisColumn: number) {
     //   if (Math.abs(xAxisColumn) < 0.1 && Math.abs(yAxisColumn) < 0.1) {
@@ -165,6 +157,29 @@ export default function SupersetPluginChartThreeDimentionalFunctionalPlot(props:
           wireframe: {
             show: true,
           },
+          // data: formattedData.map((d: { x: any; y: any; z: any; }) => [d.x, d.y, d.z]),
+          equation: {
+            x: {
+              step: 0.05
+            },
+            y: {
+              step: 0.05
+            },
+            z: function (x: number, y: number) {
+              if (Math.abs(x) < 0.1 && Math.abs(y) < 0.1) {
+                return '-';
+              }
+              return Math.sin(x * Math.PI) * Math.sin(y * Math.PI);
+            }
+            // z: function (x: number, y: number) {
+            //   // If both x and y are too close to 0, return NaN to avoid plot issues
+            //   if (Math.abs(x) < 0.1 && Math.abs(y) < 0.1) {
+            //     return NaN; // NaN is a better representation for undefined values in charts
+            //   }
+            //   // z = x^2 * y^2
+            //   return Math.pow(x, 2) * Math.pow(y, 2); // Or x * x * y * y
+            // },
+          }
         },
       ],
     };
@@ -184,7 +199,7 @@ export default function SupersetPluginChartThreeDimentionalFunctionalPlot(props:
       myChart.dispose();
       window.removeEventListener('resize', handleResize);
     };
-  }, [data, xAxisColumn, yAxisColumn, zAxisColumn, height, width]);
+  }, [data, xAxisColumn, yAxisColumn, height, width]);
 
   return (
     <>

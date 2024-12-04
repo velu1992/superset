@@ -1,141 +1,263 @@
-/* eslint-disable react/jsx-sort-default-props */
-/* eslint-disable react/sort-prop-types */
-/* eslint-disable react/jsx-handler-names */
-/* eslint-disable react/forbid-prop-types */
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
 import {
-  forwardRef,
-  memo,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useState,
-} from 'react';
-import { isEqual } from 'lodash';
-import { StaticMap } from 'react-map-gl';
-import DeckGL, { Layer } from 'deck.gl/typed';
-import { JsonObject, JsonValue, styled, usePrevious } from '@superset-ui/core';
-import Tooltip, { TooltipProps } from './components/Tooltip';
-import 'mapbox-gl/dist/mapbox-gl.css';
-import { Viewport } from './utils/fitViewport';
-
-const TICK = 250; // milliseconds
-
-export type DeckGLContainerProps = {
-  viewport: Viewport;
-  setControlValue?: (control: string, value: JsonValue) => void;
-  mapStyle?: string;
-  mapboxApiAccessToken: string;
-  children?: ReactNode;
-  width: number;
-  height: number;
-  layers: (Layer | (() => Layer))[];
-  onViewportChange?: (viewport: Viewport) => void;
-};
-
-export const DeckGLContainer = memo(
-  forwardRef((props: DeckGLContainerProps, ref) => {
-    const [tooltip, setTooltip] = useState<TooltipProps['tooltip']>(null);
-    const [lastUpdate, setLastUpdate] = useState<number | null>(null);
-    const [viewState, setViewState] = useState(props.viewport);
-    const prevViewport = usePrevious(props.viewport);
-
-    useImperativeHandle(ref, () => ({ setTooltip }), []);
-
-    const tick = useCallback(() => {
-      // Rate limiting updating viewport controls as it triggers lots of renders
-      if (lastUpdate && Date.now() - lastUpdate > TICK) {
-        const setCV = props.setControlValue;
-        if (setCV) {
-          setCV('viewport', viewState);
+    forwardRef,
+    memo,
+    useCallback,
+    useEffect,
+    useImperativeHandle,
+    useRef,
+    useState,
+  } from 'react';
+  import { isEqual } from 'lodash';
+  import { StaticMap, Marker } from 'react-map-gl';
+  import DeckGL, { Layer } from 'deck.gl/typed';
+  import { JsonObject, JsonValue, styled, usePrevious } from '@superset-ui/core';
+  import { SearchBox } from '@mapbox/search-js-react';
+  import 'mapbox-gl/dist/mapbox-gl.css';
+  import 'plugins/legacy-preset-chart-deckgl/customMapControl.css'; // Example custom styles, adjust as needed
+  import mapboxgl from 'mapbox-gl';
+  // import RainLayer from 'mapbox-gl-rain-layer';
+  import { Viewport } from './utils/fitViewport';
+  import Tooltip, { TooltipProps } from './components/Tooltip';
+  
+  const TICK = 250; // milliseconds
+  
+  export type DeckGLContainerProps = {
+    viewport: Viewport;
+    setControlValue?: (control: string, value: JsonValue) => void;
+    mapStyle?: string;
+    mapboxApiAccessToken: string;
+    children?: React.ReactNode;
+    width: number;
+    height: number;
+    layers: (Layer | (() => Layer))[];
+    onViewportChange?: (viewport: Viewport) => void;
+  };
+  
+  export const DeckGLContainer = memo(
+    forwardRef((props: DeckGLContainerProps, ref) => {
+      const [tooltip, setTooltip] = useState<TooltipProps['tooltip']>(null);
+      const [lastUpdate, setLastUpdate] = useState<number | null>(null);
+      const [viewState, setViewState] = useState<Viewport>(props.viewport);
+      const [markerPosition, setMarkerPosition] = useState<
+        [number, number] | null
+      >(null);
+      const prevViewport = usePrevious(props.viewport);
+      const searchBoxRef = useRef<any>(null);
+      const [inputValue, setInputValue] = useState('');
+      const mapRef = useRef<mapboxgl.Map | null>(null);
+      useImperativeHandle(ref, () => ({ setTooltip }), []);
+  
+      const tick = useCallback(() => {
+        if (lastUpdate && Date.now() - lastUpdate > TICK) {
+          const setCV = props.setControlValue;
+          if (setCV) {
+            setCV('viewport', viewState);
+          }
+          setLastUpdate(null);
         }
-        setLastUpdate(null);
-      }
-    }, [lastUpdate, props.setControlValue, viewState]);
-
-    useEffect(() => {
-      const timer = setInterval(tick, TICK);
-      return clearInterval(timer);
-    }, [tick]);
-
-    useEffect(() => {
-      if (!isEqual(props.viewport, prevViewport)) {
-        setViewState(props.viewport);
-      }
-    }, [prevViewport, props.viewport]);
-
-    const onViewStateChange = useCallback(
-      ({ viewState }: { viewState: JsonObject }) => {
-        setViewState(viewState as Viewport);
-        setLastUpdate(Date.now());
-      },
-      [],
-    );
-
-    const layers = useCallback(() => {
-      // Support for layer factory
-      if (props.layers.some(l => typeof l === 'function')) {
-        return props.layers.map(l =>
-          typeof l === 'function' ? l() : l,
-        ) as Layer[];
-      }
-
-      return props.layers as Layer[];
-    }, [props.layers]);
-
-    const { children = null, height, width } = props;
-
-    return (
-      <>
-        <div style={{ position: 'relative', width, height }}>
-          <DeckGL
-            controller
-            width={width}
-            height={height}
-            layers={layers()}
-            viewState={viewState}
-            glOptions={{ preserveDrawingBuffer: true }}
-            onViewStateChange={onViewStateChange}
-          >
-            <StaticMap
-              preserveDrawingBuffer
-              mapStyle={props.mapStyle || 'light'}
-              mapboxApiAccessToken={props.mapboxApiAccessToken}
-            />
-          </DeckGL>
-          {children}
-        </div>
-        <Tooltip tooltip={tooltip} />
-      </>
-    );
-  }),
-);
-
-export const DeckGLContainerStyledWrapper = styled(DeckGLContainer)`
-  .deckgl-tooltip > div {
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-`;
-
-export type DeckGLContainerHandle = typeof DeckGLContainer & {
-  setTooltip: (tooltip: ReactNode) => void;
-};
+      }, [lastUpdate, props.setControlValue, viewState]);
+  
+      useEffect(() => {
+        const timer = setInterval(tick, TICK);
+        return () => clearInterval(timer);
+      }, [tick]);
+  
+      useEffect(() => {
+        if (!isEqual(props.viewport, prevViewport)) {
+          setViewState(props.viewport);
+        }
+      }, [prevViewport, props.viewport]);
+  
+      const onViewStateChange = useCallback(
+        ({ viewState }: { viewState: JsonObject }) => {
+          setViewState(viewState as Viewport);
+          setLastUpdate(Date.now());
+          if (props.onViewportChange) {
+            props.onViewportChange(viewState as Viewport);
+          }
+        },
+        [props],
+      );
+  
+      const layers = useCallback(() => {
+        if (props.layers.some(l => typeof l === 'function')) {
+          return props.layers.map(l =>
+            typeof l === 'function' ? l() : l,
+          ) as Layer[];
+        }
+  
+        return props.layers as Layer[];
+      }, [props.layers]);
+  
+      const initializeLayers = useCallback(() => {
+        if (!mapRef.current) return;
+  
+        const map = mapRef.current;
+        console.log('Initializing layers');
+        // Add the rain layer
+        //  if (!map.getLayer('rain-layer')) {
+        // const rainLayer = new RainLayer({
+        //   id: 'rain-layer',
+        //   source: 'rainviewer',
+        //   scale: 'noaa',
+        // });
+  
+        // map.addLayer(rainLayer);
+        // console.log('Rain layer added');
+        // }
+        // Add the image source
+        const coordinates = [
+          [-80.425, 46.437], // [west, north]
+          [-71.516, 46.437], // [east, north]
+          [-71.516, 37.936], // [east, south]
+          [-80.425, 37.936], // [west, south]
+        ];
+  
+        // if (!map.getSource('image-source')) {
+        map.addSource('image-source', {
+          type: 'image',
+          url: 'https://www.mapbox.com/mapbox-gl-js/assets/radar.gif',
+          coordinates,
+        });
+        console.log('Image source added');
+        // }
+  
+        // if (!map.getLayer('image-layer')) {
+        map.addLayer({
+          id: 'image-layer',
+          source: 'image-source',
+          type: 'raster',
+          paint: {
+            'raster-opacity': 0.85,
+          },
+        });
+        console.log('Image layer added');
+        // }
+  
+        // Add weather GIF icons
+        const createGifMarker = (url: string, coordinates: [number, number]) => {
+          const el = document.createElement('div');
+          el.style.backgroundImage = `url(${url})`;
+          el.style.width = '30px';
+          el.style.height = '30px';
+          el.style.backgroundSize = 'contain';
+  
+          new mapboxgl.Marker(el).setLngLat(coordinates).addTo(map);
+        };
+  
+        createGifMarker('/static/assets/images/thunder.gif', [-40.425, 46.437]);
+        createGifMarker('/static/assets/images/rainy.gif', [-65.516, 42.437]);
+        createGifMarker('/static/assets/images/sun.gif', [-90.516, 39.936]);
+        createGifMarker('/static/assets/images/rainy.gif', [-25.516, 14.437]);
+  
+        console.log('Weather GIF icons added');
+      }, []);
+  
+      useEffect(() => {
+        const checkMapAvailability = () => {
+          const map = mapRef.current;
+          if (map?.isStyleLoaded()) {
+            console.log('Map is available');
+            initializeLayers();
+          } else {
+            console.log('Map is not available, retrying...');
+            setTimeout(checkMapAvailability, 500); // Retry after 500ms
+          }
+        };
+  
+        checkMapAvailability();
+      }, [initializeLayers]);
+  
+      const handleSearchResult = (result: any) => {
+        console.log('Search result received:', result);
+        if (result?.features && result.features.length > 0) {
+          const [longitude, latitude] = result.features[0].geometry.coordinates;
+          console.log('Updating view state with coordinates:', {
+            longitude,
+            latitude,
+          });
+          setMarkerPosition([longitude, latitude]);
+          setViewState(prevState => ({
+            ...prevState,
+            longitude,
+            latitude,
+            zoom: 12,
+          }));
+        }
+      };
+  
+      useEffect(() => {
+        console.log('Updated viewState:', viewState);
+      }, [viewState]);
+  
+      const { children = null, height, width } = props;
+      return (
+        <>
+          <div style={{ position: 'relative', width, height }}>
+            <DeckGL
+              controller
+              width={width}
+              height={height}
+              layers={layers()}
+              viewState={viewState}
+              onViewStateChange={onViewStateChange}
+            >
+              <StaticMap
+                mapStyle={props.mapStyle || 'mapbox://styles/mapbox/streets-v11'}
+                mapboxApiAccessToken={props.mapboxApiAccessToken}
+                {...viewState} // Spread the viewState directly to StaticMap
+                ref={instance => {
+                  if (instance) {
+                    mapRef.current = instance.getMap();
+                  }
+                }}
+              >
+                {markerPosition && (
+                  <Marker
+                    longitude={markerPosition[0]}
+                    latitude={markerPosition[1]}
+                  >
+                    <div
+                      style={{
+                        width: '24px',
+                        height: '24px',
+                        borderRadius: '50%',
+                        // eslint-disable-next-line theme-colors/no-literal-colors
+                        backgroundColor: '#1978c8',
+                        // eslint-disable-next-line theme-colors/no-literal-colors
+                        border: '2px solid #fff',
+                        cursor: 'pointer',
+                      }}
+                    />
+                  </Marker>
+                )}
+                
+              </StaticMap>
+              <SearchBox
+                accessToken={props.mapboxApiAccessToken}
+                onRetrieve={handleSearchResult}
+                mapboxgl={mapboxgl}
+                ref={searchBoxRef}
+                value={inputValue}
+                onChange={(value: string) => setInputValue(value)}
+                marker
+              />
+            </DeckGL>
+            {children}
+          </div>
+          <Tooltip tooltip={tooltip} />
+        </>
+      );
+    }),
+  );
+  
+  export const DeckGLContainerStyledWrapper = styled(DeckGLContainer)`
+    .deckgl-tooltip > div {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  `;
+  
+  export type DeckGLContainerHandle = typeof DeckGLContainer & {
+    setTooltip: (tooltip: React.ReactNode) => void;
+  };

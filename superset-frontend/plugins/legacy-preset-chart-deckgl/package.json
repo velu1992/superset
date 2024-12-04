@@ -25,6 +25,7 @@
   ],
   "dependencies": {
     "@mapbox/geojson-extent": "^1.0.1",
+    "@mapbox/search-js-react": "^1.0.0-beta.24",
     "@math.gl/web-mercator": "^3.2.2",
     "@types/d3-array": "^2.0.0",
     "bootstrap-slider": "^11.0.2",

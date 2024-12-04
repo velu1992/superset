@@ -18,7 +18,7 @@
 /app/docker/docker-init.sh
 
 # TODO: copy config overrides from ENV vars
-
+export CELERY_BROKER_URL=redis://localhost:6379/0
 # TODO: run celery in detached state
 export SERVER_THREADS_AMOUNT=8
 # start up the web server

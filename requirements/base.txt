@@ -320,6 +320,8 @@ pyyaml==6.0.2
     # via
     #   apache-superset
     #   apispec
+psycopg2-binary >=2.9.3
+pillow >=8.4.0
 redis==4.6.0
     # via apache-superset
 requests==2.32.2

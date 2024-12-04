@@ -522,7 +522,7 @@ DEFAULT_FEATURE_FLAGS: dict[str, bool] = {
     "GLOBAL_ASYNC_QUERIES": False,
     "EMBEDDED_SUPERSET": False,
     # Enables Alerts and reports new implementation
-    "ALERT_REPORTS": False,
+    "ALERT_REPORTS": True,
     "ALERT_REPORT_TABS": False,
     "ALERT_REPORT_SLACK_V2": False,
     "DASHBOARD_RBAC": False,
@@ -537,7 +537,7 @@ DEFAULT_FEATURE_FLAGS: dict[str, bool] = {
     # Allow users to export full CSV of table viz type.
     # This could cause the server to run out of memory or compute.
     "ALLOW_FULL_CSV_EXPORT": False,
-    "ALLOW_ADHOC_SUBQUERY": False,
+    "ALLOW_ADHOC_SUBQUERY": True,
     "USE_ANALAGOUS_COLORS": False,
     # Apply RLS rules to SQL Lab queries. This requires parsing and manipulating the
     # query, and might break queries and/or allow users to bypass RLS. Use with care!
@@ -1021,15 +1021,52 @@ CELERY_BEAT_SCHEDULER_EXPIRES = timedelta(weeks=1)
 # https://docs.celeryq.dev/en/stable/getting-started/backends-and-brokers/index.html
 
 
+# class CeleryConfig:  # pylint: disable=too-few-public-methods
+#     broker_url = "sqla+sqlite:///celerydb.sqlite"
+#     imports = (
+#         "superset.sql_lab",
+#         "superset.tasks.scheduler",
+#         "superset.tasks.thumbnails",
+#         "superset.tasks.cache",
+#     )
+#     result_backend = "db+sqlite:///celery_results.sqlite"
+#     worker_prefetch_multiplier = 1
+#     task_acks_late = False
+#     task_annotations = {
+#         "sql_lab.get_sql_results": {
+#             "rate_limit": "100/s",
+#         },
+#     }
+#     beat_schedule = {
+#         "reports.scheduler": {
+#             "task": "reports.scheduler",
+#             "schedule": crontab(minute="*", hour="*"),
+#             "options": {"expires": int(CELERY_BEAT_SCHEDULER_EXPIRES.total_seconds())},
+#         },
+#         "reports.prune_log": {
+#             "task": "reports.prune_log",
+#             "schedule": crontab(minute=0, hour=0),
+#         },
+#         # Uncomment to enable pruning of the query table
+#         # "prune_query": {
+#         #     "task": "prune_query",
+#         #     "schedule": crontab(minute=0, hour=0, day_of_month=1),
+#         #     "options": {"retention_period_days": 180},
+#         # },
+#     }
+
+REDIS_HOST = "localhost"
+REDIS_PORT = "6379"
+
 class CeleryConfig:  # pylint: disable=too-few-public-methods
-    broker_url = "sqla+sqlite:///celerydb.sqlite"
+    broker_url = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
     imports = (
         "superset.sql_lab",
         "superset.tasks.scheduler",
         "superset.tasks.thumbnails",
         "superset.tasks.cache",
     )
-    result_backend = "db+sqlite:///celery_results.sqlite"
+    result_backend = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
     worker_prefetch_multiplier = 1
     task_acks_late = False
     task_annotations = {
@@ -1054,7 +1091,6 @@ class CeleryConfig:  # pylint: disable=too-few-public-methods
         #     "options": {"retention_period_days": 180},
         # },
     }
-
 
 CELERY_CONFIG: type[CeleryConfig] = CeleryConfig
 
@@ -1231,20 +1267,30 @@ CONFIG_PATH_ENV_VAR = "SUPERSET_CONFIG_PATH"
 # a reference to the Flask app. This can be used to alter the Flask app
 # in whatever way.
 # example: FLASK_APP_MUTATOR = lambda x: x.before_request = f
-#FLASK_APP_MUTATOR = None
-FLASK_APP_MUTATOR = custom_menu
+FLASK_APP_MUTATOR = None
+#FLASK_APP_MUTATOR = custom_menu
 
 # smtp server configuration
-SMTP_HOST = "localhost"
+# SMTP_HOST = "localhost"
+# SMTP_STARTTLS = True
+# SMTP_SSL = False
+# SMTP_USER = "superset"
+# SMTP_PORT = 25
+# SMTP_PASSWORD = "superset"
+# SMTP_MAIL_FROM = "superset@superset.com"
+
+# Email configuration
+SMTP_HOST = "smtp.zoho.com" # change to your host
+SMTP_PORT = 587 # your port, e.g. 587
 SMTP_STARTTLS = True
+SMTP_SSL_SERVER_AUTH = True # If your using an SMTP server with a valid certificate
 SMTP_SSL = False
-SMTP_USER = "superset"
-SMTP_PORT = 25
-SMTP_PASSWORD = "superset"
-SMTP_MAIL_FROM = "superset@superset.com"
+SMTP_USER = "jenisha@supracontrols.com" # use the empty string "" if using an unauthenticated SMTP server
+SMTP_PASSWORD = "jeni@supra" # use the empty string "" if using an unauthenticated SMTP server
+SMTP_MAIL_FROM = "jenisha@supracontrols.com"
 # If True creates a default SSL context with ssl.Purpose.CLIENT_AUTH using the
 # default system root CA certificates.
-SMTP_SSL_SERVER_AUTH = False
+# SMTP_SSL_SERVER_AUTH = False
 ENABLE_CHUNK_ENCODING = False
 
 # Whether to bump the logging level to ERROR on the flask_appbuilder package
@@ -1519,7 +1565,7 @@ WEBDRIVER_CONFIGURATION: dict[Any, Any] = {"service_log_path": "/dev/null"}
 WEBDRIVER_OPTION_ARGS = ["--headless"]
 
 # The base URL to query for accessing the user interface
-WEBDRIVER_BASEURL = "http://0.0.0.0:8080/"
+WEBDRIVER_BASEURL = "http://0.0.0.0:8088/"
 # The base URL for the email report hyperlinks.
 WEBDRIVER_BASEURL_USER_FRIENDLY = WEBDRIVER_BASEURL
 # Time selenium will wait for the page to load and render for the email report.

@@ -89,6 +89,7 @@ import { SupersetPluginChartThreeDimentionalFunctionalPlot } from 'superset-plug
 import { SupersetPluginChartContourPlot } from 'superset-plugin-chart-contour-plot';
 import { SupersetPluginChartCandlestickPlot } from 'superset-plugin-chart-candlestick-plot';
 import { SupersetPluginChartViolinPlot } from 'superset-plugin-chart-violin-plot';
+import { SupersetPluginChartDensityPlot } from 'superset-plugin-chart-density-plot';
 
 export default class MainPreset extends Preset {
   constructor() {
@@ -191,6 +192,7 @@ export default class MainPreset extends Preset {
         new SupersetPluginChartContourPlot().configure({ key: 'contour-plot'}),
         new SupersetPluginChartCandlestickPlot().configure({ key: 'candlestick-plot'}),
         new SupersetPluginChartViolinPlot().configure({ key: 'violin-plot'}),
+        new SupersetPluginChartDensityPlot().configure({ key: 'SupersetPluginChartDensityPlot'}),
         ...experimentalPlugins,
       ],
     });

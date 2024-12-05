@@ -82,6 +82,19 @@ from superset.utils.urls import get_url_path
 
 logger = logging.getLogger(__name__)
 
+def formatDTimenow():
+    current_utc_time = datetime.utcnow()
+    year = current_utc_time.year
+    month = current_utc_time.month
+    day = current_utc_time.day
+    hour = current_utc_time.hour
+    minute = current_utc_time.minute
+    second = current_utc_time.second
+    return f"{year},{month},{day},{hour},{minute},{second}"
+formatted_string = formatDTimenow()
+year, month, day, hour, minute, second = map(int, formatted_string.split(','))
+dt = datetime(year, month, day, hour, minute, second) 
+print(dt,"**************************dt*********************************") 
 
 class BaseReportState:
     current_states: list[ReportState] = []
@@ -95,8 +108,8 @@ class BaseReportState:
         execution_id: UUID,
     ) -> None:
         self._report_schedule = report_schedule
-        self._scheduled_dttm = scheduled_dttm
-        self._start_dttm = datetime.utcnow()
+        self._scheduled_dttm = datetime.fromisoformat(scheduled_dttm)  
+        self._start_dttm = dt #datetime.utcnow()
         self._execution_id = execution_id
 
     def update_report_schedule_and_log(
@@ -125,7 +138,7 @@ class BaseReportState:
             self._report_schedule.last_value_row_json = None
 
         self._report_schedule.last_state = state
-        self._report_schedule.last_eval_dttm = datetime.utcnow()
+        self._report_schedule.last_eval_dttm = dt #datetime.utcnow()
 
     def update_report_schedule_slack_v2(self) -> None:
         """
@@ -163,7 +176,7 @@ class BaseReportState:
         log = ReportExecutionLog(
             scheduled_dttm=self._scheduled_dttm,
             start_dttm=self._start_dttm,
-            end_dttm=datetime.utcnow(),
+            end_dttm=dt, #datetime.utcnow(),
             value=self._report_schedule.last_value,
             value_row_json=self._report_schedule.last_value_row_json,
             state=self._report_schedule.last_state,
@@ -629,7 +642,7 @@ class BaseReportState:
         return (
             last_success is not None
             and self._report_schedule.grace_period
-            and datetime.utcnow()
+            and dt #datetime.utcnow()
             - timedelta(seconds=self._report_schedule.grace_period)
             < last_success.end_dttm
         )
@@ -646,7 +659,7 @@ class BaseReportState:
         return (
             last_success is not None
             and self._report_schedule.grace_period
-            and datetime.utcnow()
+            and dt #datetime.utcnow()
             - timedelta(seconds=self._report_schedule.grace_period)
             < last_success.end_dttm
         )
@@ -663,7 +676,7 @@ class BaseReportState:
         return (
             self._report_schedule.working_timeout is not None
             and self._report_schedule.last_eval_dttm is not None
-            and datetime.utcnow()
+            and dt #datetime.utcnow()
             - timedelta(seconds=self._report_schedule.working_timeout)
             > last_working.end_dttm
         )

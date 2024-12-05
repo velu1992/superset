@@ -35,8 +35,8 @@ ARG BUILD_TRANSLATIONS="false"
 ARG DEV_MODE="false"
 
 # Include headless browsers? Allows for alerts, reports & thumbnails, but bloats the images
-ARG INCLUDE_CHROMIUM="true"
-ARG INCLUDE_FIREFOX="false"
+ARG INCLUDE_CHROMIUM="false"
+ARG INCLUDE_FIREFOX="true"
 
 # Somehow we need python3 + build-essential on this side of the house to install node-gyp
 RUN apt-get update -qq \
@@ -102,9 +102,10 @@ ENV LANG=C.UTF-8 \
     FLASK_APP="superset.app:create_app()" \
     PYTHONPATH="/app/pythonpath" \
     SUPERSET_HOME="/app/superset_home" \
+    SUPERSET_CELERY="/app/celery" \
     SUPERSET_PORT=8088
 
-RUN mkdir -p ${PYTHONPATH} superset/static requirements superset-frontend apache_superset.egg-info requirements \
+RUN mkdir -p ${PYTHONPATH} ${SUPERSET_CELERY} superset/static requirements superset-frontend apache_superset.egg-info requirements \
     && useradd --user-group -d ${SUPERSET_HOME} -m --no-log-init --shell /bin/bash superset \
     && apt-get update -qq && apt-get install -yqq --no-install-recommends \
         curl \
@@ -113,6 +114,8 @@ RUN mkdir -p ${PYTHONPATH} superset/static requirements superset-frontend apache
         libpq-dev \
         libecpg-dev \
         libldap2-dev \
+        redis-server \
+        firefox-esr \
     && touch superset/static/version_info.json \
     && chown -R superset:superset ./* \
     && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
@@ -155,7 +158,17 @@ RUN if [ "$BUILD_TRANSLATIONS" = "true" ]; then \
         echo "Skipping translations as requested by build flag"; \
     fi
 
+RUN apt-get update -qq \
+        && apt-get install -yqq --no-install-recommends wget \
+        && wget https://github.com/mozilla/geckodriver/releases/download/v0.32.0/geckodriver-v0.32.0-linux64.tar.gz \
+        && tar -xvzf geckodriver-v0.32.0-linux64.tar.gz \
+        && mv geckodriver /usr/local/bin \
+        && rm geckodriver-v0.32.0-linux64.tar.gz \ 
+        && echo "Installed Firefox and geckodriver successfully"
+        
+
 COPY --chmod=755 ./docker/run-server.sh /usr/bin/
+COPY --chmod=755 ./docker/docker-startup.sh /usr/bin/
 USER superset
 
 HEALTHCHECK CMD curl -f "http://localhost:${SUPERSET_PORT}/health"
@@ -193,22 +206,24 @@ RUN if [ "$INCLUDE_CHROMIUM" = "true" ]; then \
     fi
 
 # Install GeckoDriver WebDriver
-ARG GECKODRIVER_VERSION=v0.34.0 \
-    FIREFOX_VERSION=125.0.3
+ARG GECKODRIVER_VERSION=v0.32.0 \
+    FIREFOX_VERSION=128.5.0
 
-RUN if [ "$INCLUDE_FIREFOX" = "true" ]; then \
-        apt-get update -qq \
-        && apt-get install -yqq --no-install-recommends wget bzip2 \
-        && wget -q https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz -O - | tar xfz - -C /usr/local/bin \
-        && wget -q https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_VERSION}.tar.bz2 -O - | tar xfj - -C /opt \
-        && ln -s /opt/firefox/firefox /usr/local/bin/firefox \
-        && apt-get autoremove -yqq --purge wget bzip2 && rm -rf /var/[log,tmp]/* /tmp/* /var/lib/apt/lists/* /var/cache/apt/archives/*; \
-    fi
+# RUN apt-get update -qq \
+#         && apt-get install -yqq --no-install-recommends wget bzip2 \
+#         && wget -q https://github.com/mozilla/geckodriver/releases/download/v0.32.0/geckodriver-v0.32.0-linux64.tar.gz -O - | tar xfz - -C /usr/local/bin \
+#         && wget -q https://download-installer.cdn.mozilla.net/pub/firefox/releases/128.5.0/linux-x86_64/en-US/firefox-128.5.0.tar.bz2 -O - | tar xfj - -C /opt \
+#         && ln -s /opt/firefox/firefox /usr/local/bin/firefox \
+#         && apt-get autoremove -yqq --purge wget bzip2 && rm -rf /var/[log,tmp]/* /tmp/* /var/lib/apt/lists/* /var/cache/apt/archives/* \
+#         && echo "Installed Firefox and geckodriver successfully"
 
 # Installing mysql client os-level dependencies in dev image only because GPL
 RUN apt-get install -yqq --no-install-recommends \
         default-libmysqlclient-dev \
     && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
+
+RUN pip install --no-cache gevent psycopg2-binary redis
+
 
 COPY --chown=superset:superset requirements/development.txt requirements/
 RUN --mount=type=cache,target=/root/.cache/pip \

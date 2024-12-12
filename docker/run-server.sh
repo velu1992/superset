@@ -33,7 +33,7 @@
 
 # sleep 5
 
-#/usr/bin/docker-startup.sh
+/usr/bin/docker-startup.sh
 
 HYPHEN_SYMBOL='-'
 

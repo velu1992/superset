@@ -2,8 +2,12 @@
 set -e
 
 echo "Starting Redis server..."
-redis-server --daemonize yes &
-sleep 5
+redis-server --daemonize yes 
+
+echo "Configuring Redis to continue writes on BGSAVE errors..."
+# Configure Redis to prevent write blocking on background save errors
+redis-cli CONFIG SET stop-writes-on-bgsave-error no
+
 CELERY_BEAT_SCHEDULE_DIR="/app/celery"
 
 # Start Celery Worker
